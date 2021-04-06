@@ -1,40 +1,37 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 
-class Form extends React.Component {
+const Form = props => {
+  const [text, setText] = useState(props.text)
+  const form = useRef(null)
 
-  constructor(props) {
-      super(props);
-      this.state = {
-          text: '',
-      };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+  const handleSubmit = e => {
+    setText()
+    const data = new FormData(form.current)
+    fetch("http://localhost:5000/api/v1/posts/post", {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      },
+      mode: 'cors',
+      body: data
+    })
+    .then(res => res.json())
+    .then(json => setText(json.text))
+    e.preventDefault();
   }
-
-  handleChange(event) {
-    this.setState({text: event.target.value});
-  }
-
-  handleSubmit(event) {
-    alert('An essay was submitted: ' + this.state.text);
-    event.preventDefault();
-  }
-  
-  render() {
-    return (
-        <div>
-          <form onSubmit={this.handleSubmit}>
-            <label>
-              Name 
-              <input type="text" 
-                     value={this.state.text}
-                     onChange={this.handleChange}/>
-            </label>
-            <input type="submit" name="submit" />
-          </form>
-        </div>
-    );
-  }
+  return (
+    <div>
+      <form ref={form} onSubmit={handleSubmit}>
+        <label>
+          Text 
+          <input type="text" 
+                  name="text"
+                  defaultValue={text} />
+        </label>
+        <input type="submit" name="submit" />
+      </form>
+    </div>
+  );
 }
 
 export default Form;
